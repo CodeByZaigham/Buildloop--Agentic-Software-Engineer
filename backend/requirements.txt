@@ -1,0 +1,13 @@
+langgraph
+langchain
+python-dotenv
+langchain-groq
+langchain-mistralai
+langchain-community
+langchain-tavily
+pydantic
+pydantic-settings
+fastapi
+uvicorn[standard]
+ruff
+json-repair
