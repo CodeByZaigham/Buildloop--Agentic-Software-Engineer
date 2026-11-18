@@ -39,7 +39,6 @@ class Compilation_Check(TypedDict):
     lint_issues:list[dict]
 
 class AgentState(TypedDict):
-
     # =========================
     # USER INPUT
     # =========================

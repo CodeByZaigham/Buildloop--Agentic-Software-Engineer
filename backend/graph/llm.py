@@ -28,3 +28,39 @@ def Groq(use_tools: bool = False) -> ChatGroq:
 def Mistral(use_tools: bool = False) -> ChatMistralAI:
      llm = ChatGroq(model="openai/gpt-oss-120b")
      return llm.bind_tools(TOOLS) if use_tools else llm
+
+def parse_llm_json(content: str) -> dict:
+     """
+     Parse a JSON object out of a raw LLM response, tolerating leading/
+     trailing prose, Markdown code fences (```json ... ``` or ``` ... ```
+     anywhere in the text), trailing commas, single quotes, and truncated
+     JSON. Raises ValueError (with a snippet of the offending text) if
+     nothing usable can be recovered.
+     """
+     if not content or not content.strip():
+          raise ValueError("Model returned an empty response - nothing to parse as JSON.")
+
+     text = content.strip()
+
+     # Fast path: the model behaved and gave us clean JSON.
+     try:
+          return json.loads(text)
+     except json.JSONDecodeError:
+          pass
+
+     # Slow path: recover from fences / stray prose / minor syntax mistakes.
+     try:
+          repaired = json_repair.loads(text)
+     except Exception as exc:
+          raise ValueError(
+               f"Could not parse a JSON object out of the model's response. "
+               f"First 300 chars:\n{text[:300]!r}"
+          ) from exc
+
+     if isinstance(repaired, dict):
+          return repaired
+
+     raise ValueError(
+          f"Model's response parsed as {type(repaired).__name__}, not a JSON object. "
+          f"First 300 chars:\n{text[:300]!r}"
+     )
