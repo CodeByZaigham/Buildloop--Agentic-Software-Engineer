@@ -13,6 +13,7 @@ TOOLS_NOTE = """
     """
 
 def _parse_json(content: str) -> dict:
-     """Thin wrapper kept for readability at call sites - see llm.parse_llm_json
-     for the actual (json_repair-backed) parsing logic."""
-     return parse_llm_json(content)
+    """Thin wrapper kept for readability at call sites - see llm.parse_llm_json
+    for the actual (json_repair-backed) parsing logic."""
+    return parse_llm_json(content)
+

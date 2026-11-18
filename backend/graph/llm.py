@@ -64,3 +64,27 @@ def parse_llm_json(content: str) -> dict:
           f"Model's response parsed as {type(repaired).__name__}, not a JSON object. "
           f"First 300 chars:\n{text[:300]!r}"
      )
+
+# ---------------------------------------------------------------------------
+# Error classification
+# ---------------------------------------------------------------------------
+# Different failure modes need different responses:
+#   - rate_limit  -> transient, worth waiting out and retrying
+#   - too_large   -> the request itself will never fit (e.g. Groq's free-tier
+#                    per-minute token cap, or a genuine context-length
+#                    overflow) - retrying the SAME provider is pointless,
+#                    but a different provider with more headroom might work
+#   - transient   -> 5xx / connection hiccups, worth a short retry
+#   - fatal       -> a real bug (bad request, auth, etc.) - surface it as-is
+
+_TOO_LARGE_HINTS = (
+     "context_length_exceeded",
+     "context length",
+     "maximum context length",
+     "reduce the length",
+     "reduce your message size",
+     "request too large",
+     "too many tokens",
+     "input is too long",
+     "prompt is too long",
+)
