@@ -88,3 +88,9 @@ _TOO_LARGE_HINTS = (
      "input is too long",
      "prompt is too long",
 )
+
+def _status_code(exc: Exception):
+     response = getattr(exc, "response", None)
+     if response is not None:
+          return getattr(response, "status_code", None)
+     return getattr(exc, "status_code", None)
