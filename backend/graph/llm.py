@@ -94,3 +94,18 @@ def _status_code(exc: Exception):
      if response is not None:
           return getattr(response, "status_code", None)
      return getattr(exc, "status_code", None)
+
+def _error_text(exc: Exception) -> str:
+     """Best-effort extraction of everything that might describe the error,
+     lower-cased, for keyword matching."""
+     parts = [str(exc)]
+     response = getattr(exc, "response", None)
+     if response is not None:
+          try:
+               parts.append(response.text)
+          except Exception:
+               pass
+     body = getattr(exc, "body", None)
+     if body:
+          parts.append(str(body))
+     return " ".join(parts).lower()
