@@ -123,3 +123,9 @@ def classify_llm_error(exc: Exception) -> str:
      if isinstance(exc, (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpx.RemoteProtocolError)):
           return "transient"
      return "fatal"
+
+class LLMUnavailableError(RuntimeError):
+     """Raised when an LLM call fails in a way retries on that same
+     provider can't fix (too_large), or after every retry has been
+     exhausted (rate_limit / transient). Callers can catch this to fall
+     back to a different provider - see invoke_resilient."""
