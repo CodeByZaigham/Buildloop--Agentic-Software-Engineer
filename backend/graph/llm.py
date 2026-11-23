@@ -109,3 +109,17 @@ def _error_text(exc: Exception) -> str:
      if body:
           parts.append(str(body))
      return " ".join(parts).lower()
+
+def classify_llm_error(exc: Exception) -> str:
+     status = _status_code(exc)
+     text = _error_text(exc)
+
+     if status == 413 or any(hint in text for hint in _TOO_LARGE_HINTS):
+          return "too_large"
+     if status == 429 or isinstance(exc, GroqRateLimitError):
+          return "rate_limit"
+     if status is not None and status >= 500:
+          return "transient"
+     if isinstance(exc, (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpx.RemoteProtocolError)):
+          return "transient"
+     return "fatal"
